@@ -2,6 +2,8 @@ import dayjs from 'dayjs'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { h, nextTick, ref } from 'vue'
 import Calendar from '..'
+import ConfigProvider from '../../config-provider'
+import zhCN from '../../locale/zh_CN'
 import rtlTest from '/@tests/shared/rtlTest'
 import { mount, resetMockDate, setMockDate } from '/@tests/utils'
 
@@ -252,5 +254,25 @@ describe('calendar', () => {
     await nextTick()
     expect(calendarRef.value?.nativeElement).toBeInstanceOf(HTMLElement)
     expect(calendarRef.value.nativeElement).toBe(wrapper.find('.ant-picker-calendar').element)
+  })
+
+  // https://github.com/ant-design/ant-design/pull/56376
+  it('should support deep merge locale with partial fields', () => {
+    const wrapper = mount(Calendar, {
+      props: {
+        locale: { lang: { shortWeekDays: ['一', '二', '三', '四', '五', '六', '日'] } } as any,
+      },
+    })
+    expect(wrapper.find('.ant-picker-content thead').text()).toBe('一二三四五六日')
+    expect(wrapper.find('.ant-radio-group .ant-radio-button-label').text()).toBe('Month')
+  })
+
+  it('should merge partial locale with ConfigProvider locale', () => {
+    const wrapper = mount(() => (
+      <ConfigProvider locale={zhCN}>
+        <Calendar locale={{ lang: { month: 'Month' } } as any} />
+      </ConfigProvider>
+    ))
+    expect(wrapper.findAll('.ant-radio-button-label').map(item => item.text())).toEqual(['Month', '年'])
   })
 })

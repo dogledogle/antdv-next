@@ -4,7 +4,7 @@ import type { CSSProperties, SlotsType } from 'vue'
 import type { SemanticClassNamesType, SemanticStylesType } from '../_util/hooks'
 import type { AnyObject, VueNode } from '../_util/type'
 import { PickerPanel } from '@v-c/picker'
-import { clsx } from '@v-c/util'
+import { clsx, merge } from '@v-c/util'
 import { computed, defineComponent, ref, shallowRef, watch } from 'vue'
 import { getAttrStyleAndClass, useMergeSemantic, useSemanticRootStyle, useToArr, useToProps } from '../_util/hooks'
 import { devUseWarning, isDev } from '../_util/warning'
@@ -367,10 +367,7 @@ function generateCalendar<DateType extends AnyObject>(generateConfig: GenerateCo
       }
 
       const [contextLocale] = useLocale('Calendar', enUS)
-      const locale = computed(() => ({
-        ...contextLocale?.value,
-        ...(props.locale ?? {}),
-      }))
+      const locale = computed(() => merge(contextLocale?.value, props.locale || {}))
 
       const mergedCellRender: BasePickerPanelProps['cellRender'] = (current: any, info: any) => {
         if (info.type === 'date') {
