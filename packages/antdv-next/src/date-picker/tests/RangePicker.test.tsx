@@ -5,6 +5,7 @@ import { nextTick, ref } from 'vue'
 import DatePicker from '..'
 import { resetWarned } from '../../_util/warning'
 import ConfigProvider from '../../config-provider'
+import zhCN from '../../locale/zh_CN'
 import enUS from '../locale/en_US'
 import { mount, resetMockDate, setMockDate } from '/@tests/utils'
 
@@ -256,6 +257,35 @@ describe('range-picker', () => {
 
     expect(wrapper.find('.ant-picker-clear').exists()).toBe(true)
     expect(wrapper.find('[data-testid="config-range-clear"]').exists()).toBe(true)
+  })
+
+  // https://github.com/ant-design/ant-design/pull/56376
+  it('should support deep merge locale with partial fields', async () => {
+    const wrapper = mount(
+      <RangePicker open locale={{ lang: { shortWeekDays: ['一', '二', '三', '四', '五', '六', '日'] } } as any} />,
+      { attachTo: document.body },
+    )
+    await nextTick()
+
+    expect(document.body.querySelector('.ant-picker-content thead')?.textContent).toBe('一二三四五六日')
+    expect(wrapper.find('input').attributes('placeholder')).toBe('Start date')
+
+    wrapper.unmount()
+  })
+
+  it('should merge partial locale with ConfigProvider locale', async () => {
+    const wrapper = mount(
+      <ConfigProvider locale={zhCN}>
+        <RangePicker open locale={{ lang: { rangePlaceholder: ['Pick start', 'Pick end'] } } as any} />
+      </ConfigProvider>,
+      { attachTo: document.body },
+    )
+    await nextTick()
+
+    expect(wrapper.findAll('input').map(input => input.attributes('placeholder'))).toEqual(['Pick start', 'Pick end'])
+    expect(document.body.querySelector('.ant-picker-header-super-prev-btn')?.getAttribute('aria-label')).toBe('上一年')
+
+    wrapper.unmount()
   })
 
   describe('suffix', () => {

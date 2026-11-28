@@ -6,7 +6,7 @@ import type { SlotsType } from 'vue'
 import type { AnyObject, VueNode } from '../../_util/type'
 import type { GenericTimePickerProps, PickerProps } from './interface'
 import Picker from '@v-c/picker'
-import { clsx } from '@v-c/util'
+import { clsx, merge } from '@v-c/util'
 import { getTransitionName } from '@v-c/util/dist/utils/transition'
 import { computed, defineComponent, shallowRef } from 'vue'
 import { ContextIsolator } from '../../_util/ContextIsolator'
@@ -191,10 +191,7 @@ function generatePicker<DateType extends AnyObject = AnyObject>(generateConfig: 
         const mergedPicker = computed(() => props.picker || picker)
 
         const [contextLocale] = useLocale('DatePicker', enUS)
-        const locale = computed(() => ({
-          ...contextLocale?.value,
-          ...(props.locale ?? {}),
-        }))
+        const locale = computed(() => merge(contextLocale?.value, props.locale || {}))
 
         const [zIndex] = useZIndex('DatePicker', computed(() => mergedStyles.value?.popup?.root?.zIndex as number))
 

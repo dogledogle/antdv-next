@@ -7,6 +7,7 @@ import DatePicker from '..'
 import { resetWarned } from '../../_util/warning'
 import ConfigProvider from '../../config-provider'
 import Flex from '../../flex'
+import zhCN from '../../locale/zh_CN'
 import { mount } from '/@tests/utils'
 
 function getCell(text: string) {
@@ -300,6 +301,35 @@ describe('date-picker', () => {
     allowClear.value = true
     await nextTick()
     expect(wrapper.find('.ant-picker-clear').exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  // https://github.com/ant-design/ant-design/pull/56376
+  it('should support deep merge locale with partial fields', async () => {
+    const wrapper = mount(
+      <DatePicker open locale={{ lang: { shortWeekDays: ['一', '二', '三', '四', '五', '六', '日'] } } as any} />,
+      { attachTo: document.body },
+    )
+    await nextTick()
+
+    expect(document.body.querySelector('.ant-picker-content thead')?.textContent).toBe('一二三四五六日')
+    expect(wrapper.find('input').attributes('placeholder')).toBe('Select date')
+
+    wrapper.unmount()
+  })
+
+  it('should merge partial locale with ConfigProvider locale', async () => {
+    const wrapper = mount(
+      <ConfigProvider locale={zhCN}>
+        <DatePicker open locale={{ lang: { placeholder: 'Pick' } } as any} />
+      </ConfigProvider>,
+      { attachTo: document.body },
+    )
+    await nextTick()
+
+    expect(wrapper.find('input').attributes('placeholder')).toBe('Pick')
+    expect(document.body.querySelector('.ant-picker-header-super-prev-btn')?.getAttribute('aria-label')).toBe('上一年')
+
     wrapper.unmount()
   })
 

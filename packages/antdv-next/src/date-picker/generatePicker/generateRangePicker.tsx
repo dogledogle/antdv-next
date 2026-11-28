@@ -6,7 +6,7 @@ import type { SizeType } from '../../config-provider/SizeContext'
 import type { RangePickerProps } from './interface'
 import { SwapRightOutlined } from '@antdv-next/icons'
 import { RangePicker } from '@v-c/picker'
-import { clsx } from '@v-c/util'
+import { clsx, merge } from '@v-c/util'
 import { getTransitionName } from '@v-c/util/dist/utils/transition'
 import { computed, defineComponent, shallowRef } from 'vue'
 import { ContextIsolator } from '../../_util/ContextIsolator'
@@ -171,10 +171,7 @@ function generateRangePicker<DateType extends AnyObject = AnyObject>(generateCon
       ))
 
       const [contextLocale] = useLocale('DatePicker', enUS)
-      const locale = computed(() => ({
-        ...contextLocale?.value,
-        ...(props.locale ?? {}),
-      }))
+      const locale = computed(() => merge(contextLocale?.value, props.locale || {}))
 
       const [zIndex] = useZIndex('DatePicker', computed(() => mergedStyles.value?.popup?.root?.zIndex as number))
 
